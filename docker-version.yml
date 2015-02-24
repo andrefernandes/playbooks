@@ -1,0 +1,6 @@
+- hosts: local
+  tasks:
+  - name: docker version
+    shell: docker -v
+    register: result
+  - debug: var=result

@@ -1,0 +1,20 @@
+- hosts: local
+  tasks:
+  - name: docker stop
+    sudo: yes
+    service: name=docker state=stopped
+    register: result
+  - debug: var=result
+  - name: docker download
+    sudo: yes
+    get_url: url=https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz dest=/opt/docker-latest.tgz
+  - name: docker upgrade
+    sudo: yes
+    shell: tar -xzf /opt/docker-latest.tgz -C /
+  - name: docker start
+    sudo: yes
+    service: name=docker state=started
+  - name: docker version
+    shell: docker -v
+    register: result
+  - debug: var=result
