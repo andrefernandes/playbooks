@@ -1,19 +1,30 @@
-- hosts: local
+- hosts: all
+  vars:
+    new_version: "150"
   tasks:
+  - name: detect docker client version
+    shell: echo $(docker -v | awk '{print $3}' | sed 's/[\.,]//g')
+    register: docker_version
+  - debug: var=docker_version.stdout
   - name: docker stop
     sudo: yes
     service: name=docker state=stopped
     register: result
+    when: docker_version.stdout < new_version
   - debug: var=result
+    when: docker_version.stdout < new_version
   - name: docker download
     sudo: yes
     get_url: url=https://get.docker.com/builds/Linux/x86_64/docker-latest.tgz dest=/opt/docker-latest.tgz
+    when: docker_version.stdout < new_version
   - name: docker upgrade
     sudo: yes
     shell: tar -xzf /opt/docker-latest.tgz -C /
+    when: docker_version.stdout < new_version
   - name: docker start
     sudo: yes
     service: name=docker state=started
+    when: docker_version.stdout < new_version
   - name: docker version
     shell: docker -v
     register: result
